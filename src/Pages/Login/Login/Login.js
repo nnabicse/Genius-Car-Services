@@ -1,7 +1,7 @@
 import { Button } from 'bootstrap';
 import React, { useRef } from 'react';
 import { Form } from 'react-bootstrap';
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSendPasswordResetEmail, useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import auth from '../../../firebase.init';
 import SocialLogin from '../SocialLogin/SocialLogin';
@@ -9,6 +9,9 @@ import SocialLogin from '../SocialLogin/SocialLogin';
 const Login = () => {
     const location = useLocation()
     const from = location.state?.from?.pathname || "/";
+    const [sendPasswordResetEmail, sending, errorReset] = useSendPasswordResetEmail(
+        auth
+    );
     const [
         signInWithEmailAndPassword,
         user,
@@ -29,6 +32,11 @@ const Login = () => {
     const navigateRegister = event => {
         navigate('/register')
     }
+    const resetPassword = async () => {
+        await sendPasswordResetEmail(emailRef.current.value);
+        alert('Sent Mail');
+
+    }
 
     if (user) {
         navigate(from, { replace: true });
@@ -43,12 +51,10 @@ const Login = () => {
                 <Form.Group className="mb-3" controlId="formBasicPassword">
                     <Form.Control required ref={passwordRef} type="password" placeholder="Password" />
                 </Form.Group>
-                <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                    <Form.Check type="checkbox" label="Check me out" />
-                </Form.Group>
                 <button className='btn btn-primary' type='submit'>Submit</button>
             </Form>
             <p>New to Genius Car? <Link to='/register' className='text-danger pe-auto text-decoration-none' onClick={navigateRegister}>Please Register</Link></p>
+            <p>Forgot Password? <Link to='' className='text-danger pe-auto text-decoration-none' onClick={resetPassword}>Reset Password</Link></p>
             <SocialLogin></SocialLogin>
         </div>
     );
